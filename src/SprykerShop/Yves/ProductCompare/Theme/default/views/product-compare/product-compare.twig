@@ -1,0 +1,17 @@
+{% extends template('page-layout-main') %}
+
+{% define data = {
+    products: _view.products,
+    title: 'compare.compare-page' | trans
+} %}
+
+{% block breadcrumbs %}
+    {% include molecule('breadcrumb') with {
+        data: {
+            steps: [{
+                label: 'compare.compare-page' | trans,
+                url: url('product-compare')
+            }]
+        }
+    } only %}
+{% endblock %}
