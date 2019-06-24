@@ -2,6 +2,7 @@
 
 {% define data = {
     products: _view.products,
+    attributes: _view.attributes,
     title: 'compare.compare-page' | trans
 } %}
 
@@ -14,4 +15,14 @@
             }]
         }
     } only %}
+{% endblock %}
+
+{% block content %}
+    <div class="text-right">
+        {% widget 'ClearProductCompareListWidget' %}{% endwidget %}
+    </div>
+
+    {% include '@ProductCompare/_partials/product-compare.twig' with {
+        data: data
+    } %}
 {% endblock %}

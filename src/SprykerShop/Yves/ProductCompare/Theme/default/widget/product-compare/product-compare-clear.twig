@@ -1,0 +1,17 @@
+{% extends template('widget') %}
+
+{% define data = {} %}
+
+{% block body %}
+    <form class="js-product-compare__form" method="POST" action="{{ path('product-compare/clear-items') }}">
+        <button type="submit"
+                class="link link--alert js-clear-product-compare" {{ qa('clear-compare-list-button') }}>
+            {% include atom('icon') with {
+                data: {
+                    name: 'remove'
+                }
+            } only %}
+            {{ 'page.detail.clear-compare-list' | trans }}
+        </button>
+    </form>
+{% endblock %}

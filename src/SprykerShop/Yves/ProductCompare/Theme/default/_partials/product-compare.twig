@@ -1,0 +1,42 @@
+<table class="table table--expand">
+    <thead>
+    <tr class="row">
+        <th class="col col--sm-12 col--md-6 col--lg-3">
+
+        </th>
+        {% for product in data.products %}
+            <th class="col col--sm-12 col--md-5 col--lg-3">
+                <div class="text-left">
+                    {% widget 'RemoveProductFromCompareListWidget' args [product.sku] only %}{% endwidget %}
+                </div>
+                {% include molecule('product-card') with {
+                    class: '',
+                    data: {
+                        name: product.name,
+                        abstractId: product.idProductAbstract,
+                        url: product.url,
+                        imageUrl: product.images is empty ? '' : product.images.0.externalUrlSmall,
+                        price: product.prices.DEFAULT | default(null)
+                    }
+                } only %}
+            </th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for attribute_name in data.attributes %}
+        <tr>
+            <td class="col col--sm-12 col--md-5 col--lg-3">
+                <strong itemprop="name">{{ ('product.attribute.' ~ attribute_name) | trans }}</strong><br/>
+            </td>
+            {% for product in data.products %}
+                <td class="col col--sm-12 col--md-5 col--lg-3">
+                    {% if product.attributes[attribute_name] is defined %}
+                        {{ product.attributes[attribute_name] }}
+                    {% endif %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

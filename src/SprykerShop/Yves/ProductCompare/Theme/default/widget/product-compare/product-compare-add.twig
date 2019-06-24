@@ -1,0 +1,26 @@
+{% extends template('widget') %}
+
+{% define data = {
+    sku: _widget.sku
+} %}
+
+{% block body %}
+    <form class="js-product-compare__form" method="POST" action="{{ path('product-compare/add-item') }}">
+        <div class="grid grid--justify">
+            <div class="col col--sm-5">
+                <input type="hidden" name="sku" value="{{ data.sku }}"/>
+            </div>
+            <div class="col col--sm-6">
+                <button type="submit"
+                        class="button button--expand js-add-to-product-compare" {{ qa('add-to-compare-list-button') }}>
+                    {% include atom('icon') with {
+                        data: {
+                            name: 'bars'
+                        }
+                    } only %}
+                    {{ 'page.detail.add-to-compare-list' | trans }}
+                </button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

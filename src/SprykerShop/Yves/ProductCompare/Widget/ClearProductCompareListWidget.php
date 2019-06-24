@@ -13,16 +13,13 @@ use Spryker\Yves\Kernel\Widget\AbstractWidget;
 /**
  * @method \SprykerShop\Yves\ProductCompare\ProductCompareFactory getFactory()
  */
-class ProductCompareWidget extends AbstractWidget
+class ClearProductCompareListWidget extends AbstractWidget
 {
     /**
-     * @param string $sku
-     *
      * @return void
      */
-    public function __construct(string $sku)
+    public function __construct()
     {
-        $this->addParameter('sku', $sku);
     }
 
     /**
@@ -30,7 +27,7 @@ class ProductCompareWidget extends AbstractWidget
      */
     public static function getName(): string
     {
-        return static::class;
+        return substr(strrchr(static::class, '\\'), 1);
     }
 
     /**
@@ -38,6 +35,6 @@ class ProductCompareWidget extends AbstractWidget
      */
     public static function getTemplate(): string
     {
-        return '@ProductCompare/widget/product-compare/product-compare.twig';
+        return '@ProductCompare/widget/product-compare/product-compare-clear.twig';
     }
 }

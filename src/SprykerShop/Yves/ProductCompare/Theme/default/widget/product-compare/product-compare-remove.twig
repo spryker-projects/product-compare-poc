@@ -1,0 +1,19 @@
+{% extends template('widget') %}
+
+{% define data = {
+    sku: _widget.sku
+} %}
+
+{% block body %}
+    <form class="js-product-compare__form" method="POST" action="{{ path('product-compare/remove-item') }}">
+        <input type="hidden" name="sku" value="{{ data.sku }}"/>
+        <button type="submit"
+                class="link link--alert js-remove-from-product-compare" {{ qa('remove-from-compare-list-button') }}>
+            {% include atom('icon') with {
+                data: {
+                    name: 'remove'
+                }
+            } only %}
+        </button>
+    </form>
+{% endblock %}
