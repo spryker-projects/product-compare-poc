@@ -13,10 +13,11 @@ interface ProductCompareListManagerInterface
 {
     /**
      * @param string $concreteSku
+     * @param string $localeName
      *
      * @return bool
      */
-    public function addToCompareList(string $concreteSku): bool;
+    public function addToCompareList(string $concreteSku, string $localeName): bool;
 
     /**
      * @param string $concreteSku
@@ -26,11 +27,11 @@ interface ProductCompareListManagerInterface
     public function removeFormCompareList(string $concreteSku): bool;
 
     /**
-     * @param string[] $concreteSkus
+     * @param string[] $compareList
      *
      * @return bool
      */
-    public function replaceCompareList(array $concreteSkus): bool;
+    public function replaceCompareList(array $compareList): bool;
 
     /**
      * @return bool
@@ -40,7 +41,7 @@ interface ProductCompareListManagerInterface
     /**
      * @param string $localeName
      *
-     * @return Generated\Shared\Transfer\ProductViewTransfer[]
+     * @return \Generated\Shared\Transfer\ProductViewTransfer[]
      */
-    public function getProductsToCompare(string $localeName): array;
+    public function getProductsCompareList(string $localeName): array;
 }

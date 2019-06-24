@@ -51,11 +51,20 @@ class ProductCompareListManager implements ProductCompareListManagerInterface
 
     /**
      * @param string $concreteSku
+     * @param string $localeName
      *
      * @return bool
      */
-    public function addToCompareList(string $concreteSku): bool
+    public function addToCompareList(string $concreteSku, string $localeName): bool
     {
+        if ($concreteSku === '') {
+            return false;
+        }
+
+        if (!$this->isValidSku($concreteSku, $localeName)) {
+            return false;
+        }
+
         $compareList = $this->getCompareListSkus();
         $compareList[] = $concreteSku;
 
@@ -70,19 +79,20 @@ class ProductCompareListManager implements ProductCompareListManagerInterface
     public function removeFormCompareList(string $concreteSku): bool
     {
         $compareList = $this->getCompareListSkus();
-        $compareList[] = array_diff($compareList, [$concreteSku]);
+        $compareList = array_diff($compareList, [$concreteSku]);
 
         return $this->replaceCompareList($compareList);
     }
 
     /**
-     * @param string[] $concreteSkus
+     * @param string[] $compareList
      *
      * @return bool
      */
-    public function replaceCompareList(array $concreteSkus): bool
+    public function replaceCompareList(array $compareList): bool
     {
-        if (count($concreteSkus) >= $this->productCompareConfig->getMaxItemsInCompareList()) {
+        $compareList = array_unique(array_filter($compareList));
+        if (count($compareList) > $this->productCompareConfig->getMaxItemsInCompareList()) {
             return false;
         }
 
@@ -102,9 +112,11 @@ class ProductCompareListManager implements ProductCompareListManagerInterface
     }
 
     /**
+     * @param string $localeName
+     *
      * @return Generated\Shared\Transfer\ProductViewTransfer[]
      */
-    public function getProductsToCompare(string $localeName): array
+    public function getProductsCompareList(string $localeName): array
     {
         $compareList = $this->getCompareListSkus();
 
@@ -115,6 +127,7 @@ class ProductCompareListManager implements ProductCompareListManagerInterface
                 continue;
             }
 
+            $productConcreteData['attributeMap'] = [];
             $productViewTransfers[] = $this->productStorageClient->mapProductStorageData($productConcreteData, $localeName);
         }
 
@@ -122,11 +135,27 @@ class ProductCompareListManager implements ProductCompareListManagerInterface
     }
 
     /**
+     * @param string $concreteSku
+     * @param string $localeName
+     *
+     * @return bool
+     */
+    protected function isValidSku(string $concreteSku, string $localeName): bool
+    {
+        return $this->productStorageClient->findProductConcreteStorageDataByMapping(static::MAPPING_TYPE_SKU, $concreteSku, $localeName) !== null;
+    }
+
+    /**
      * @return string[]
      */
     protected function getCompareListSkus(): array
     {
-        $compareList = $this->sessionClient->get(static::SESSION_KEY, '');
+        $compareList = $this->sessionClient->get(static::SESSION_KEY);
+
+        if ($compareList === null) {
+            return [];
+        }
+
         $compareList = explode(static::COMPARE_LIST_DELIMITER, $compareList);
 
         return $compareList;

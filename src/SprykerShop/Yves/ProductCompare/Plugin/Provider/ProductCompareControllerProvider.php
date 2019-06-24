@@ -13,11 +13,11 @@ use SprykerShop\Yves\ShopApplication\Plugin\Provider\AbstractYvesControllerProvi
 
 class ProductCompareControllerProvider extends AbstractYvesControllerProvider
 {
-    public const ROUTE_PRODUCT_COMPARE = 'product-compare';
-    public const ROUTE_PRODUCT_COMPARE_ADD_ITEM = 'product-compare-add-item';
-    public const ROUTE_PRODUCT_COMPARE_REMOVE_ITEM = 'product-compare-remove-item';
-    public const ROUTE_PRODUCT_COMPARE_SORT_ITEMS = 'product-compare-sort-items';
-    public const ROUTE_PRODUCT_COMPARE_CLEAR_ITEMS = 'product-compare-clear-items';
+    public const ROUTE_PRODUCT_COMPARE = 'product-compare/overview';
+    public const ROUTE_PRODUCT_COMPARE_ADD_ITEM = 'product-compare/add-item';
+    public const ROUTE_PRODUCT_COMPARE_REMOVE_ITEM = 'product-compare/remove-item';
+    public const ROUTE_PRODUCT_COMPARE_SORT_ITEMS = 'product-compare/sort-items';
+    public const ROUTE_PRODUCT_COMPARE_CLEAR_ITEMS = 'product-compare/clear-items';
 
     protected const PRODUCT_COMPARE_DEFAULT = 'product-compare';
 
@@ -52,10 +52,9 @@ class ProductCompareControllerProvider extends AbstractYvesControllerProvider
      */
     protected function addProductCompareAddItemRoute()
     {
-        $this->createPostController('/{productCompare}/{addItem}', static::ROUTE_PRODUCT_COMPARE_ADD_ITEM, 'ProductCompare', 'ProductCompare', 'addItem')
+        $this->createPostController('/{productCompare}/add-item', static::ROUTE_PRODUCT_COMPARE_ADD_ITEM, 'ProductCompare', 'ProductCompare', 'addItem')
             ->assert('productCompare', $this->getProductCompareResourcePath())
-            ->value('productCompare', static::PRODUCT_COMPARE_DEFAULT)
-            ->value('addItem', 'add-item');
+            ->value('productCompare', static::PRODUCT_COMPARE_DEFAULT);
 
         return $this;
     }
@@ -65,10 +64,9 @@ class ProductCompareControllerProvider extends AbstractYvesControllerProvider
      */
     protected function addProductCompareRemoveItemRoute()
     {
-        $this->createPostController('/{productCompare}/{removeItem}', static::ROUTE_PRODUCT_COMPARE_REMOVE_ITEM, 'ProductCompare', 'ProductCompare', 'removeItem')
+        $this->createPostController('/{productCompare}/remove-item', static::ROUTE_PRODUCT_COMPARE_REMOVE_ITEM, 'ProductCompare', 'ProductCompare', 'removeItem')
             ->assert('productCompare', $this->getProductCompareResourcePath())
-            ->value('productCompare', static::PRODUCT_COMPARE_DEFAULT)
-            ->value('removeItem', 'remove-item');
+            ->value('productCompare', static::PRODUCT_COMPARE_DEFAULT);
 
         return $this;
     }
@@ -78,10 +76,9 @@ class ProductCompareControllerProvider extends AbstractYvesControllerProvider
      */
     protected function addProductCompareSortItemsRoute()
     {
-        $this->createPostController('/{productCompare}/{sortItems}', static::ROUTE_PRODUCT_COMPARE_SORT_ITEMS, 'ProductCompare', 'ProductCompare', 'sortItems')
+        $this->createPostController('/{productCompare}/sort-items', static::ROUTE_PRODUCT_COMPARE_SORT_ITEMS, 'ProductCompare', 'ProductCompare', 'sortItems')
             ->assert('productCompare', $this->getProductCompareResourcePath())
-            ->value('productCompare', static::PRODUCT_COMPARE_DEFAULT)
-            ->value('sortItems', 'sort-items');
+            ->value('productCompare', static::PRODUCT_COMPARE_DEFAULT);
 
         return $this;
     }
@@ -91,10 +88,9 @@ class ProductCompareControllerProvider extends AbstractYvesControllerProvider
      */
     protected function addProductCompareClearItemsRoute()
     {
-        $this->createPostController('/{productCompare}/{clear-items}', static::ROUTE_PRODUCT_COMPARE_CLEAR_ITEMS, 'ProductCompare', 'ProductCompare', 'clearItems')
+        $this->createPostController('/{productCompare}/clear-items', static::ROUTE_PRODUCT_COMPARE_CLEAR_ITEMS, 'ProductCompare', 'ProductCompare', 'clearItems')
             ->assert('productCompare', $this->getProductCompareResourcePath())
-            ->value('productCompare', static::PRODUCT_COMPARE_DEFAULT)
-            ->value('clear-items', 'clear-items');
+            ->value('productCompare', static::PRODUCT_COMPARE_DEFAULT);
 
         return $this;
     }

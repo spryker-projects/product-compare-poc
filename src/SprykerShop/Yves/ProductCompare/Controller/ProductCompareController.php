@@ -9,7 +9,8 @@ namespace SprykerShop\Yves\ProductCompare\Controller;
 
 use Spryker\Yves\Kernel\Controller\AbstractController;
 use Spryker\Yves\Kernel\View\View;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use SprykerShop\Yves\ProductCompare\Plugin\Provider\ProductCompareControllerProvider;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -17,8 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ProductCompareController extends AbstractController
 {
-    protected const RESPONSE_SUCCESS_KEY = 'success';
     protected const RESPONSE_PRODUCTS_KEY = 'products';
+    protected const RESPONSE_ATTRIBUTES_KEY = 'attributes';
 
     /**
      * @return \Spryker\Yves\Kernel\View\View
@@ -35,49 +36,50 @@ class ProductCompareController extends AbstractController
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function addItemAction(Request $request): JsonResponse
+    public function addItemAction(Request $request): RedirectResponse
     {
-        return $this->jsonResponse(
-            $this->executeAddItemAction()
-        );
+        $this->executeAddItemAction($request);
+
+        return $this->redirectResponseInternal(ProductCompareControllerProvider::ROUTE_PRODUCT_COMPARE);
     }
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function removeItemAction(Request $request): JsonResponse
+    public function removeItemAction(Request $request): RedirectResponse
     {
-        return $this->jsonResponse(
-            $this->executeRemoveItemAction()
-        );
+        $this->executeRemoveItemAction($request);
+
+        return $this->redirectResponseInternal(ProductCompareControllerProvider::ROUTE_PRODUCT_COMPARE);
+
     }
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function sortItemsAction(Request $request): JsonResponse
+    public function sortItemsAction(Request $request): RedirectResponse
     {
-        return $this->jsonResponse(
-            $this->executeSortItemsAction()
-        );
+        $this->executeSortItemsAction($request);
+
+        return $this->redirectResponseInternal(ProductCompareControllerProvider::ROUTE_PRODUCT_COMPARE);
     }
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function clearItemsAction(Request $request): JsonResponse
+    public function clearItemsAction(Request $request): RedirectResponse
     {
-        return $this->jsonResponse(
-            $this->executeClearItemsAction()
-        );
+        $this->executeClearItemsAction();
+
+        return $this->redirectResponseInternal(ProductCompareControllerProvider::ROUTE_PRODUCT_COMPARE);
     }
 
     /**
@@ -85,64 +87,102 @@ class ProductCompareController extends AbstractController
      */
     protected function executeIndexAction(): array
     {
+        $products = $this->getFactory()
+            ->createProductCompareListManager()
+            ->getProductsCompareList($this->getLocale());
+
         return [
-            static::RESPONSE_PRODUCTS_KEY => $this->getFactory()
-                ->createProductCompareListManager()
-                ->getProductsToCompare($this->getLocale())
+            static::RESPONSE_PRODUCTS_KEY => $products,
+            static::RESPONSE_ATTRIBUTES_KEY => $this->collectAttributes($products),
         ];
     }
 
     /**
+     * @param \Generated\Shared\Transfer\ProductViewTransfer[] $productViewTransfers
+     *
      * @return array
      */
-    protected function executeAddItemAction(): array
+    protected function collectAttributes(array $productViewTransfers): array
     {
-        $concreteSku = $request->query->get('sku');
+        $attributes = [];
+        foreach ($productViewTransfers as $productViewTransfer) {
+            $attributes = array_merge($attributes, array_keys($productViewTransfer->getAttributes()));
+        }
 
-        return [
-            static::RESPONSE_SUCCESS_KEY => $this->getFactory()
-                ->createProductCompareListManager()
-                ->addToCompareList($concreteSku)
-        ];
+        return array_unique($attributes);
     }
 
     /**
-     * @return array
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return void
      */
-    protected function executeRemoveItemAction(): array
+    protected function executeAddItemAction(Request $request): void
     {
-        $concreteSku = $request->query->get('sku');
+        $concreteSku = $this->getSkuFromQurery($request);
 
-        return [
-            static::RESPONSE_SUCCESS_KEY => $this->getFactory()
-                ->createProductCompareListManager()
-                ->removeFormCompareList($concreteSku)
-        ];
+        if ($this->getFactory()->createProductCompareListManager()->addToCompareList($concreteSku, $this->getLocale())) {
+            $this->addSuccessMessage('page.product-compare-added-to-list');
+
+            return;
+        }
+
+        $this->addErrorMessage('page.product-compare-not-added-to-list');
     }
 
     /**
-     * @return array
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return void
      */
-    protected function executeSortItemsAction(): array
+    protected function executeRemoveItemAction(Request $request): void
     {
-        $concreteSkus = $request->query->get('skus');
+        $concreteSku = $this->getSkuFromQurery($request);
 
-        return [
-            static::RESPONSE_SUCCESS_KEY => $this->getFactory()
-                ->createProductCompareListManager()
-                ->replaceCompareList($concreteSkus)
-        ];
+        if ($this->getFactory()->createProductCompareListManager()->removeFormCompareList($concreteSku)) {
+            $this->addSuccessMessage('page.product-compare-removed-from-list');
+
+            return;
+        }
+
+        $this->addErrorMessage('page.product-compare-not-removed-from-list');
     }
 
     /**
-     * @return array
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return void
      */
-    protected function executeClearItemsAction(): array
+    protected function executeSortItemsAction(Request $request): void
     {
-        return [
-            static::RESPONSE_SUCCESS_KEY => $this->getFactory()
-                ->createProductCompareListManager()
-                ->clearCompareList()
-        ];
+        $concreteSkus = $request->request->get('skus');
+
+        $this->getFactory()
+            ->createProductCompareListManager()
+            ->replaceCompareList($concreteSkus);
+    }
+
+    /**
+     * @return void
+     */
+    protected function executeClearItemsAction(): void
+    {
+        if ($this->getFactory()->createProductCompareListManager()->clearCompareList()) {
+            $this->addSuccessMessage('page.product-compare-cleared-list');
+
+            return;
+        }
+
+        $this->addErrorMessage('page.product-compare-list-not-cleared');
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return string
+     */
+    protected function getSkuFromQurery(Request $request): string
+    {
+        return $request->request->get('sku');
     }
 }
